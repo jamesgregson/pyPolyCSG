@@ -1,0 +1,53 @@
+pyPolyCSG © James Gregson 2012
+james.gregson@gmail.com
+
+======================================================
+OVERVIEW =============================================
+======================================================
+
+A C++ wrapper (+ Boost::Python-based extension module) for the Carve Constructive Solid Geometry (CSG) library, intended to simplify performing CSG operations on meshes.  Reads and writes a variety of mesh formats.
+
+======================================================
+LICENSE ==============================================
+======================================================
+
+pyPolyCSG code is licensed under the permissive MIT license, however commercial users should be aware that the Carve library upon which pyPolyCSG depends is licensed under the GPL v2.  Commercial users are advised to contact the Carve authors to negotiate custom license terms.
+
+======================================================
+INSTALLATION =========================================
+======================================================
+
+PyPolyCSG depends on the Carve library to perform boolean operation on polyhedra.  A modified version 1.4.0 is included in the third_party/ subdirectory and must be built and installed.  The modifications allow the library to build under LLVM as packaged with the OS-X 10.8 developer tools.  GCC users can use the unmodified library, available from http://carve.googlecode.com/files/carve-1.4.0.tgz
+
+To do so, run the following commands from the third_party subdirectory.  Note that building Carve requires the CMake build system to be installed.  The Boost library must also be installed.
+
+mkdir carve-1.4.0-build
+cd carve-1.4.0-build
+cmake ../carve-1.4.0
+make
+
+This will produce a set of files in the carve-1.4.0-build directory that are referenced by the PyPolyCSG build scripts along with the files in the carve-1.4.0 directory.
+
+
+======================================================
+Python pyPolyCSG extension module:
+
+Edit the setup.py script in the root installation directory to correctly set paths for your system. Then run the following from the root installation directory:
+
+python setup.py install
+
+to install the extension module.  This may need to be run as root. Examples demonstrating the library can then be run from the scripts/ subdirectory.
+
+======================================================
+C++ Test Executable:
+
+Edit the CMakeLists.txt file to correctly set paths for your system. Then run the following from the root installation directory
+
+mkdir build
+cd build
+cmake .. 
+make
+
+This should build a 'boolean_test' executable that subtracts an ellipsoid from a box, saving the result as 'dump.obj'.
+
+
