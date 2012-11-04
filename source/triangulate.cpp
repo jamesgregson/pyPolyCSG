@@ -331,7 +331,7 @@ bool triangulate_simple_polygon_set( const std::vector<double> &coords, const in
 		}		
 	}
 	
-	std::cout << "took " << tries << " out of a maximum of " << max_tries << std::endl;
+	//std::cout << "took " << tries << " out of a maximum of " << max_tries << std::endl;
 	
 	// should always end up with num_verts-2 triangles when
 	// tesselating a simple polygon. Failure to do so indicates

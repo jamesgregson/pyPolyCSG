@@ -26,7 +26,7 @@ cd carve-1.4.0-build
 cmake ../carve-1.4.0
 make
 
-This will produce a set of files in the carve-1.4.0-build directory that are referenced by the PyPolyCSG build scripts along with the files in the carve-1.4.0 directory.
+This will produce a set of files in the carve-1.4.0-build directory that are referenced by the PyPolyCSG build scripts along with the files in the carve-1.4.0 directory. Omit the -DCMAKE… portion if not building on OS-X.
 
 
 ======================================================

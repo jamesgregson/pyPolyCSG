@@ -1,6 +1,10 @@
 #ifndef POLYHEDRON_H
 #define POLYHEDRON_H
 
+#include<iostream>
+#include<stdexcept>
+#include<boost/python.hpp>
+
 /**
  @file   polyhedron.h
  @author James Gregson (james.gregson@gmail.com)
@@ -16,6 +20,7 @@ class polyhedron {
 private:
 	std::vector<double>		m_coords;
 	std::vector<int>		m_faces;
+    std::vector<int>        m_faces_start;
 public:
 	/**
 	 @brief default constructor
@@ -27,6 +32,56 @@ public:
 	*/
 	polyhedron( const polyhedron &in );
 	
+    /**
+     @brief returns the number of vertices in the mesh
+    */
+    int num_vertices();
+    
+    /**
+     @brief returns the number of faces in the mesh
+    */
+    int num_faces();
+    
+    /**
+     @brief returns the number of vertices in the face_id'th face.
+     @param[in] face_id id of the face to return the vertex count of
+     @return number of vertices in the face_id'th face
+    */
+    int num_face_vertices( int face_id );
+    
+    /**
+     @brief return the vertex id's corresponding to the face_id'th face
+     @param[in] face_id id of the face to get the vertex list of
+     @param[out] vertex_id_list array of elements to store the face vertices in, this should be appropriately sized
+    */
+    void get_face_vertices( int face_id, int *vertex_id_list );
+    
+    /**
+     @brief returns a tuple containing the vertex_id'th vertex's coordinates
+     @param[in] vertex_id input vertex id
+     @return tuple containing the vertex_id'th vertex coordinates
+    */
+    boost::python::tuple py_get_vertex_coordinates( int vertex_id );
+    
+    /**
+     @brief returns a list containing the face_id'th vertex indices
+     @param[in] face_id the id of the face to get the vertex indices of
+     @return list of vertex indices for the face_id'th face
+    */
+    boost::python::list py_get_face_vertices( int face_id );
+    
+    /**
+     @brief returns a numpy array of mesh vertex coordinates as a 2D numpy array
+     @return numpy array of vertex coordinates
+    */
+    boost::python::numeric::array py_get_vertices();
+    
+    /**
+     @brief temporarily triangulates the current polyhedron and fills a 2D numpy array with the triangle vertex indices
+     @return numpy array of triangle vertex indices
+    */
+    boost::python::numeric::array py_get_triangles();
+    
 	/**
 	 @brief initialize the polyhedron data from an input file, there must be a reader present for the file
 	 @param[in] filename input file to load

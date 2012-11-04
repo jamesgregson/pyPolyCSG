@@ -48,11 +48,13 @@ polyhedron torus( const double radius_major, const double radius_minor, const bo
 polyhedron::polyhedron(){
 	m_coords.clear();
 	m_faces.clear();
+    m_faces_start.clear();
 }
 
 polyhedron::polyhedron( const polyhedron &in ){
 	m_coords = in.m_coords;
 	m_faces  = in.m_faces;
+    m_faces_start = in.m_faces_start;
 }
 
 bool polyhedron::initialize_load_from_file( const char *filename ){
@@ -74,6 +76,16 @@ bool polyhedron::initialize_load_from_mesh( const std::vector<double> &coords, c
 	// for now, just copy the arrays over
 	m_coords = coords;
 	m_faces  = faces;
+    
+    // build the face_start array, which
+    // gives the starting index of each face
+    // (to the entry containing the number of
+    // vertices in the face).
+    int i=0;
+    while( i < m_faces.size() ){
+        m_faces_start.push_back( i );
+        i += m_faces[i]+1;
+    }
 	
 	return true;
 }
@@ -482,6 +494,72 @@ polyhedron polyhedron::triangulate() const {
 	polyhedron poly;
 	poly.initialize_load_from_mesh( coords, faces );
 	return poly;
+}
+
+int polyhedron::num_vertices(){
+    return m_coords.size()/3;
+}
+
+int polyhedron::num_faces(){
+    return m_faces_start.size();
+}
+
+int polyhedron::num_face_vertices( int face_id ){
+    if( face_id < 0 || face_id >= num_faces() ){
+        throw std::range_error("invalid face id");
+    }
+    return m_faces_start[face_id];
+}
+
+void polyhedron::get_face_vertices( int face_id, int *vertex_id_list ){
+    if( face_id < 0 || face_id >= num_faces() ){
+        throw std::range_error("invalid face id");
+    }
+    int start = m_faces_start[face_id]+1;
+    int n = m_faces[ m_faces_start[face_id] ];
+    for( int i=0; i<n; i++ ){
+        vertex_id_list[i] = m_faces[start+i];
+    }
+}
+
+boost::python::tuple polyhedron::py_get_vertex_coordinates( int vertex_id ){
+    if( vertex_id < 0 || vertex_id >= num_vertices() ){
+        throw std::range_error("invalid vertex id");
+    }
+    vertex_id *= 3;
+    return boost::python::make_tuple( m_coords[vertex_id], m_coords[vertex_id+1], m_coords[vertex_id+2] );
+}
+
+boost::python::list polyhedron::py_get_face_vertices( int face_id ){
+    if( face_id < 0 || face_id >= num_faces() ){
+        throw std::range_error("invalid face id");
+    }
+    int start = m_faces_start[face_id]+1;
+    int n = m_faces[ m_faces_start[face_id]];
+    boost::python::list ret;
+    for( int i=0; i<n; i++ ){
+        ret.append( m_faces[start+i] );
+    }
+    return ret;
+}
+
+boost::python::numeric::array polyhedron::py_get_vertices(){
+    boost::python::list tmp;
+    for( int i=0; i<num_vertices(); i++ ){
+        tmp.append( boost::python::make_tuple( m_coords[i*3+0], m_coords[i*3+1], m_coords[i*3+2] ) );
+    }
+    return boost::python::numeric::array( tmp );
+}
+
+boost::python::numeric::array polyhedron::py_get_triangles(){
+    polyhedron tri = triangulate();
+    boost::python::list tmp;
+    for( int i=0; i<tri.num_faces(); i++ ){
+        int vtx_id[3];
+        tri.get_face_vertices( i, vtx_id );
+        tmp.append( boost::python::make_tuple( vtx_id[0], vtx_id[1], vtx_id[2] ) );
+    }
+    return boost::python::numeric::array( tmp );
 }
 
 

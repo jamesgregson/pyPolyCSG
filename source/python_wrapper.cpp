@@ -16,7 +16,8 @@ BOOST_PYTHON_FUNCTION_OVERLOADS( cone_overloads,     cone,     2, 4 );
 BOOST_PYTHON_FUNCTION_OVERLOADS( torus_overloads,    torus,    2, 5 );
 
 BOOST_PYTHON_MODULE(pyPolyCSG){
-	
+	numeric::array::set_module_and_type("numpy", "ndarray");
+    
 	def( "load_mesh",        load_mesh_file );
 	def( "sphere",		     sphere,    sphere_overloads() );
 	def( "box",			     box,       box_overloads() );
@@ -34,6 +35,14 @@ BOOST_PYTHON_MODULE(pyPolyCSG){
 	.def( "rotate",                    &polyhedron::rotate )
 	.def( "scale",                     &polyhedron::scale )
 	.def( "save_mesh",                 &polyhedron::output_store_in_file )
+    
+    .def( "num_vertices",              &polyhedron::num_vertices )
+    .def( "num_faces",                 &polyhedron::num_faces )
+    .def( "num_face_vertices",         &polyhedron::num_face_vertices )
+    .def( "get_vertex",                &polyhedron::py_get_vertex_coordinates )
+    .def( "get_face",                  &polyhedron::py_get_face_vertices )
+    .def( "get_vertices",              &polyhedron::py_get_vertices )
+    .def( "get_triangles",             &polyhedron::py_get_triangles )
 	
 	.def( self + polyhedron() )
 	.def( self - polyhedron() )
