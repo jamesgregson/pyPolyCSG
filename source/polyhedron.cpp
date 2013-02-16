@@ -578,6 +578,30 @@ polyhedron polyhedron::scale( const double x, const double y, const double z ) c
 	return op( *this );
 }
 
+polyhedron polyhedron::multmatrix4(
+                        double xx, double xy, double xz, double xa,
+                        double yx, double yy, double yz, double ya,
+                        double zx, double zy, double zz, double za,
+                        double ax, double ay, double az, double aa ) const {
+    polyhedron_multmatrix4 op( xx, xy, xz, xa,
+                               yx, yy, yz, ya,
+                               zx, zy, zz, za,
+                               ax, ay, az, aa );
+
+    return op( *this );
+}
+
+polyhedron polyhedron::multmatrix3(
+        double xx,double xy,double xz,
+        double yx,double yy,double yz,
+        double zx,double zy,double zz ) const {
+    polyhedron_multmatrix3 op( xx, xy, xz,
+                               yx, yy, yz,
+                               zx, zy, zz );
+
+    return op( *this );
+}
+
 polyhedron polyhedron::operator+( const polyhedron &in ) const {
 	polyhedron_union op;
 	return op( *this, in );
