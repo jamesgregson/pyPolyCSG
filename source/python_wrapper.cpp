@@ -34,6 +34,8 @@ BOOST_PYTHON_MODULE(pyPolyCSG){
 	.def( "translate",                 &polyhedron::translate )
 	.def( "rotate",                    &polyhedron::rotate )
 	.def( "scale",                     &polyhedron::scale )
+	.def( "multmatrix3",               &polyhedron::multmatrix3 )
+	.def( "multmatrix4",               &polyhedron::multmatrix4 )
 	.def( "save_mesh",                 &polyhedron::output_store_in_file )
     
     .def( "num_vertices",              &polyhedron::num_vertices )
