@@ -1,6 +1,8 @@
 #ifndef POLYHEDRON_H
 #define POLYHEDRON_H
 
+#define BOOST_PYTHON_MAX_ARITY 16
+
 #include<iostream>
 #include<stdexcept>
 #include<boost/python.hpp>
@@ -215,6 +217,16 @@ public:
 	 */
 	polyhedron scale( const double x, const double y, const double z ) const;
 			
+
+polyhedron multmatrix3( double xx,double xy,double xz,
+                        double yx,double yy,double yz,
+                        double zx,double zy,double zz ) const;
+
+polyhedron multmatrix4( double xx,double xy,double xz, double xa,
+                        double yx,double yy,double yz, double ya,
+                        double zx,double zy,double zz, double za,
+                        double ax,double ay,double az, double aa ) const;
+
 	/**
 	 @brief polyhedron union operator, takes an input polyhedron and returns the union of this polyhedron with it
 	 @param[in] in input polyhedron to compute union with
@@ -301,6 +313,7 @@ polyhedron cone( const double radius, const double height, const bool is_centere
  @return generated polyhedron or an empty polyhedron otherwise
 */
 polyhedron torus( const double radius_major, const double radius_minor, const bool is_centered=false, const int major_segments=20, const int minor_segments=20 );
+
 
 
 #endif

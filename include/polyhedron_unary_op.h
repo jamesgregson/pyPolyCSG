@@ -96,4 +96,50 @@ public:
 	polyhedron operator()( const polyhedron &in );
 };
 
+class polyhedron_multmatrix3 : public polyhedron_unary_op
+{
+    private:
+        /** @brief matrix to apply */
+        double m_matrix[3][3];
+    public:
+        /**
+         @brief constructor, takes a list of matrix elements as arguments
+         */
+        polyhedron_multmatrix3( const double xx,const double xy,const double xz,
+                                const double yx,const double yy,const double yz,
+                                const double zx,const double zy,const double zz );
+
+        /**
+         @brief applies the matrix multiplication
+         @param[in] an input polyhedron
+         @return polyhedron transformed by m_matrix
+         */
+        polyhedron operator()( const polyhedron &in );
+};
+
+class polyhedron_multmatrix4 : public polyhedron_unary_op
+{
+    private:
+        /** @brief matrix to apply */
+        double m_matrix[3][3];
+        /** @brief translation to apply */
+        double m_translation[3];
+    public:
+        /**
+         @brief constructor, takes a list of matrix elements as arguments
+         */
+
+        polyhedron_multmatrix4(
+            const double xx,const double xy,const double xz, const double xa,
+            const double yx,const double yy,const double yz, const double ya,
+            const double zx,const double zy,const double zz, const double za,
+            const double ax,const double ay,const double az, const double aa );
+        /**
+         @brief applies the matrix multiplication
+         @param[in] an input polyhedron
+         @return polyhedron transformed by m_matrix
+         */
+        polyhedron operator()( const polyhedron &in );
+};
+
 #endif
