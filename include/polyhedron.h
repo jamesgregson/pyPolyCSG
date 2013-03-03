@@ -271,6 +271,8 @@ polyhedron sphere( const double radius, const bool is_centered=false, const int 
 */
 polyhedron box( const double size_x, const double size_y, const double size_z, const bool is_centered=false );
 
+polyhedron extrusion( const std::vector<double> &coords, const std::vector<int> &lines, const double distance );
+
 /**
  @brief convenience function for creating a cylinder, wraps polyhedron::initialize_create_cylinder()
  @param[in] radius cylinder radius

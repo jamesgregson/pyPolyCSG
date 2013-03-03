@@ -44,6 +44,12 @@ polyhedron torus( const double radius_major, const double radius_minor, const bo
 	return p;
 }
 
+polyhedron extrusion( const std::vector<double> &coords, const std::vector<int> &lines, const double distance ){
+	polyhedron p;
+	p.initialize_create_extrusion( coords, lines, distance );
+	return p;
+}
+
 
 polyhedron::polyhedron(){
 	m_coords.clear();
