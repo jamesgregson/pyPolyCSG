@@ -224,6 +224,32 @@ public:
 	 */
 	polyhedron scale( const double x, const double y, const double z ) const;
 			
+
+    /**
+     @brief apply a 3x3 rotation matrix to the polyhedron
+     */
+    polyhedron mult_matrix_3( double xx,double xy,double xz,
+                           double yx,double yy,double yz,
+                           double zx,double zy,double zz ) const;
+    
+    /**
+     @brief python version of mult_matrix_3 to get around boost::python argument count limits
+    */
+    polyhedron py_mult_matrix_3( const boost::python::list &m ) const;
+    
+    /**
+     @brief apply a 4x4 transformation matrix to the polyhedron
+     */
+    polyhedron mult_matrix_4( double xx,double xy,double xz, double xa,
+                           double yx,double yy,double yz, double ya,
+                           double zx,double zy,double zz, double za,
+                           double ax,double ay,double az, double aa ) const;
+
+    /**
+     @brief python version of mult_matrix_4 to get around boost::pythoon argument count limits
+    */
+    polyhedron py_mult_matrix_4( const boost::python::list &m ) const;
+    
 	/**
 	 @brief polyhedron union operator, takes an input polyhedron and returns the union of this polyhedron with it
 	 @param[in] in input polyhedron to compute union with
@@ -329,6 +355,5 @@ polyhedron extrusion( const std::vector<double> &coords, const std::vector<int> 
  @return true if successful, false otherwise
  */
 polyhedron surface_of_revolution( const std::vector<double> &coords, const std::vector<int> &lines, const double angle=360.0, const int segments=20 );
-
 
 #endif

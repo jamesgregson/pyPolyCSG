@@ -90,3 +90,59 @@ polyhedron polyhedron_scale::operator()( const polyhedron &in ){
 	return ret;
 }
 
+polyhedron_multmatrix3::polyhedron_multmatrix3(
+		const double xx,const double xy,const double xz,
+		const double yx,const double yy,const double yz,
+		const double zx,const double zy,const double zz ) {
+	m_matrix[0][0] = xx; m_matrix[0][1] = xy; m_matrix[0][2] = xz;
+	m_matrix[1][0] = yx; m_matrix[1][1] = yy; m_matrix[1][2] = yz;
+	m_matrix[2][0] = zx; m_matrix[2][1] = zy; m_matrix[2][2] = zz;
+}
+
+polyhedron polyhedron_multmatrix3::operator()( const polyhedron &in ) {
+	std::vector<double> coords;
+	std::vector<int>    faces;
+	in.output_store_in_mesh( coords, faces );
+	for( int i=0; i<(int)coords.size(); i+=3 ){
+		double x=coords[i+0], y=coords[i+1], z=coords[i+2];
+		coords[i+0] = m_matrix[0][0]*x + m_matrix[0][1]*y + m_matrix[0][2]*z;
+		coords[i+1] = m_matrix[1][0]*x + m_matrix[1][1]*y + m_matrix[1][2]*z;
+		coords[i+2] = m_matrix[2][0]*x + m_matrix[2][1]*y + m_matrix[2][2]*z;
+	}
+	polyhedron ret;
+	ret.initialize_load_from_mesh( coords, faces );
+	return ret;
+};
+
+polyhedron_multmatrix4::polyhedron_multmatrix4(
+		const double xx, const double xy, const double xz, const double xa,
+		const double yx, const double yy, const double yz, const double ya,
+		const double zx, const double zy, const double zz, const double za,
+		const double ax, const double ay, const double az, const double aa ) {
+	m_matrix[0][0] = xx; m_matrix[0][1] = xy; m_matrix[0][2] = xz;
+	m_matrix[1][0] = yx; m_matrix[1][1] = yy; m_matrix[1][2] = yz;
+	m_matrix[2][0] = zx; m_matrix[2][1] = zy; m_matrix[2][2] = zz;
+
+	m_translation[0] = xa;
+	m_translation[1] = ya;
+	m_translation[2] = za;
+}
+
+polyhedron polyhedron_multmatrix4::operator()( const polyhedron &in ) {
+	std::vector<double> coords, new_coords;
+	std::vector<int>	faces;
+	in.output_store_in_mesh( coords, faces );
+  new_coords.resize(coords.size());
+	for( int offset=0; offset<(int)coords.size(); offset+=3 ){
+	for ( int j=0; j<3; j++ ) {
+		for ( int k=0; k<3; k++ ) {
+			new_coords[offset+j] += m_matrix[j][k] * coords[offset+j];
+		}
+	}
+	}
+  polyhedron_translate* translate = new polyhedron_translate(m_translation[0], m_translation[1], m_translation[2]);
+	polyhedron ret;
+	ret.initialize_load_from_mesh( new_coords, faces );
+  ret = (*translate)(ret);
+	return ret;
+}

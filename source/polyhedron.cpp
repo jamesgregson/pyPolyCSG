@@ -596,6 +596,51 @@ polyhedron polyhedron::scale( const double x, const double y, const double z ) c
 	return op( *this );
 }
 
+polyhedron polyhedron::mult_matrix_4(
+                        double xx, double xy, double xz, double xa,
+                        double yx, double yy, double yz, double ya,
+                        double zx, double zy, double zz, double za,
+                        double ax, double ay, double az, double aa ) const {
+    polyhedron_multmatrix4 op( xx, xy, xz, xa,
+                               yx, yy, yz, ya,
+                               zx, zy, zz, za,
+                               ax, ay, az, aa );
+
+    return op( *this );
+}
+
+polyhedron polyhedron::py_mult_matrix_4( const boost::python::list &m ) const {
+    double a[16];
+    if( boost::python::len(m) != 16 )
+        throw "expected 16 matrix coefficients";
+    for( int i=0; i<16; i++ ){
+        a[i] = boost::python::extract<double>( m[i] );
+    }
+    return mult_matrix_4( a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15] );
+}
+
+polyhedron polyhedron::mult_matrix_3(
+        double xx,double xy,double xz,
+        double yx,double yy,double yz,
+        double zx,double zy,double zz ) const {
+    polyhedron_multmatrix3 op( xx, xy, xz,
+                               yx, yy, yz,
+                               zx, zy, zz );
+
+    return op( *this );
+}
+
+polyhedron polyhedron::py_mult_matrix_3( const boost::python::list &m ) const {
+    double a[9];
+    if( boost::python::len(m) != 9 )
+        throw "expected 9 matrix coefficients";
+    for( int i=0; i<9; i++ ){
+        a[i] = boost::python::extract<double>( m[i] );
+    }
+    return mult_matrix_3( a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8] );
+}
+
+
 polyhedron polyhedron::operator+( const polyhedron &in ) const {
 	polyhedron_union op;
 	return op( *this, in );

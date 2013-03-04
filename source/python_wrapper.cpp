@@ -74,6 +74,8 @@ BOOST_PYTHON_MODULE(pyPolyCSG){
 	.def( "translate",                 &polyhedron::translate )
 	.def( "rotate",                    &polyhedron::rotate )
 	.def( "scale",                     &polyhedron::scale )
+	.def( "mult_matrix_3",               &polyhedron::py_mult_matrix_3 )
+	.def( "mult_matrix_4",               &polyhedron::py_mult_matrix_4 )
 	.def( "save_mesh",                 &polyhedron::output_store_in_file )
     
     .def( "num_vertices",              &polyhedron::num_vertices )
@@ -89,7 +91,7 @@ BOOST_PYTHON_MODULE(pyPolyCSG){
 	.def( self * polyhedron() )
     // TODO: JG 2013/03/03 need to add symmetric difference operator '^' in C++ API....
 	;
-
+    
     boost::python::class_<std::vector<double> >("DoubleVec").def(boost::python::vector_indexing_suite<std::vector<double> >());
     boost::python::class_<std::vector<int> >("IntVec").def(boost::python::vector_indexing_suite<std::vector<int> >());
 }
