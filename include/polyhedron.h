@@ -37,6 +37,9 @@ public:
     */
     int num_vertices();
     
+    /**
+     @brief returns the id'th vertex
+    */
     void get_vertex( const int id, double &x, double &y, double &z ) const {
         x = m_coords[id*3+0];
         y = m_coords[id*3+1];
@@ -309,11 +312,10 @@ polyhedron cone( const double radius, const double height, const bool is_centere
 polyhedron torus( const double radius_major, const double radius_minor, const bool is_centered=false, const int major_segments=20, const int minor_segments=20 );
 
 /**
- @brief generates a surface of revolution (SOR )from the input 2D profile by revolving a contour around the x-axis
+ @brief generates an extrusion from the input 2D profile
  @param[in] coords coordinates of the profile vertices, as in initialize_create_extrude()
  @param[in] lines coordinate of the profile lines, as in initialize_create_extrude()
- @param[in] angle angle by which to rotate, to generate partial SORs
- @param[in] segments number of segments to create
+ @param[in] distance the distance to extrude the contour
  @return true if successful, false otherwise
  */
 polyhedron extrusion( const std::vector<double> &coords, const std::vector<int> &lines, const double distance );
