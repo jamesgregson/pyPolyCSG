@@ -3,6 +3,32 @@ using namespace boost::python;
 
 #include"polyhedron.h"
 
+polyhedron py_extrusion( const boost::python::list &coords, const double distance ){
+    std::vector<double> tcoords;
+    std::vector<int>    tlines;
+    
+    for( int i=0; i<boost::python::len(coords); i++ ){
+        tcoords.push_back( boost::python::extract<double>( coords[i][0] ) );
+        tcoords.push_back( boost::python::extract<double>( coords[i][1] ) );
+        tlines.push_back( i );
+    }
+    
+    return extrusion( tcoords, tlines, distance );
+}
+
+polyhedron py_surface_of_revolution( const boost::python::list &coords, const double angle=360, const int segments=20 ){
+    std::vector<double> tcoords;
+    std::vector<int> tlines;
+    
+    for( int i=0; i<boost::python::len(coords); i++ ){
+        tcoords.push_back( boost::python::extract<double>( coords[i][0] ) );
+        tcoords.push_back( boost::python::extract<double>( coords[i][1] ) );
+        tlines.push_back( i );
+    }
+    
+    return surface_of_revolution( tcoords, tlines, angle, segments );
+}
+
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS( make_sphere_overloads,		initialize_create_sphere,    1, 4 );
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS( make_box_overloads,			initialize_create_box,       3, 4 );
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS( make_cylinder_overloads,    initialize_create_cylinder,  2, 4 );
@@ -14,6 +40,7 @@ BOOST_PYTHON_FUNCTION_OVERLOADS( box_overloads,      box,      3, 4 );
 BOOST_PYTHON_FUNCTION_OVERLOADS( cylinder_overloads, cylinder, 2, 4 );
 BOOST_PYTHON_FUNCTION_OVERLOADS( cone_overloads,     cone,     2, 4 );
 BOOST_PYTHON_FUNCTION_OVERLOADS( torus_overloads,    torus,    2, 5 );
+BOOST_PYTHON_FUNCTION_OVERLOADS( sor_overloads,      py_surface_of_revolution, 1, 3 );
 
 BOOST_PYTHON_MODULE(pyPolyCSG){
 	numeric::array::set_module_and_type("numpy", "ndarray");
@@ -24,7 +51,9 @@ BOOST_PYTHON_MODULE(pyPolyCSG){
 	def( "cylinder",	     cylinder,  cylinder_overloads() );
 	def( "cone",		     cone,      cone_overloads() );
 	def( "torus",		     torus,     torus_overloads() );
-	
+    def( "extrusion",        py_extrusion );
+	def( "surface_of_revolution", py_surface_of_revolution, sor_overloads() );
+    
 	class_<polyhedron>("polyhedron")
 	.def( "load_mesh",	               &polyhedron::initialize_load_from_file )
 	.def( "make_sphere",               &polyhedron::initialize_create_sphere, make_sphere_overloads() )

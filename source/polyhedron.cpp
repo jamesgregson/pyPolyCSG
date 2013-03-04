@@ -44,6 +44,19 @@ polyhedron torus( const double radius_major, const double radius_minor, const bo
 	return p;
 }
 
+polyhedron extrusion( const std::vector<double> &coords, const std::vector<int> &lines, const double distance ){
+    polyhedron p;
+    p.initialize_create_extrusion( coords, lines, distance );
+    return p;
+}
+
+polyhedron surface_of_revolution( const std::vector<double> &coords, const std::vector<int> &lines, const double angle, const int segments ){
+    polyhedron p;
+    p.initialize_create_surface_of_revolution( coords, lines, angle, segments );
+    return p;
+}
+
+
 
 polyhedron::polyhedron(){
 	m_coords.clear();
@@ -90,12 +103,15 @@ bool polyhedron::initialize_load_from_mesh( const std::vector<double> &coords, c
 	return true;
 }
 
+/*
+ 2013-03-03 - Fixed so number of vertical segments was correct
+*/
 bool polyhedron::initialize_create_sphere( const double radius, const bool is_centered, const int hsegments, const int vsegments ){
 	std::vector<double> coords;
 	std::vector<int>    faces;
 	
-	for( int j=1; j<vsegments-1; j++ ){
-		double phi = M_PI*double(j)/double(vsegments-1);
+	for( int j=1; j<vsegments; j++ ){
+		double phi = M_PI*double(j)/double(vsegments);
 		for( int i=0; i<hsegments; i++ ){
 			double theta = 2.0*M_PI*double(i)/double(hsegments);
 			double x = radius*sin(phi)*cos(-theta);
@@ -111,15 +127,17 @@ bool polyhedron::initialize_create_sphere( const double radius, const bool is_ce
 			coords.push_back( z );
 		}
 	}
+    int bottom_vtx = coords.size()/3;
 	coords.push_back( is_centered ? 0.0 : radius );
 	coords.push_back( is_centered ? 0.0 : radius );
 	coords.push_back( is_centered ? radius : 2.0*radius );
 	
+    int top_vtx = coords.size()/3;
 	coords.push_back( is_centered ? 0.0 : radius );
 	coords.push_back( is_centered ? 0.0 : radius );
 	coords.push_back( is_centered ? -radius : 0.0 );
 	
-	for( int j=0; j<vsegments-3; j++ ){
+	for( int j=0; j<vsegments-2; j++ ){
 		for( int i=0; i<hsegments; i++ ){
 			faces.push_back( 4 );
 			faces.push_back( (i+0)%hsegments+((j+0)%vsegments)*hsegments );
@@ -131,15 +149,15 @@ bool polyhedron::initialize_create_sphere( const double radius, const bool is_ce
 	
 	for( int i=0; i<hsegments; i++ ){
 		faces.push_back( 3 );
-		faces.push_back( hsegments*(vsegments-2) );
+		faces.push_back( bottom_vtx );
 		faces.push_back( (i+1)%hsegments );
 		faces.push_back( i );
 	}
 	for( int i=0; i<hsegments; i++ ){
 		faces.push_back( 3 );
-		faces.push_back( hsegments*(vsegments-2)+1 );
-		faces.push_back( i+(vsegments-3)*hsegments );
-		faces.push_back( (i+1)%hsegments+(vsegments-3)*hsegments );
+		faces.push_back( top_vtx );
+		faces.push_back( i+(vsegments-2)*hsegments );
+		faces.push_back( (i+1)%hsegments+(vsegments-2)*hsegments );
 	}
 	
 	return initialize_load_from_mesh( coords, faces );
