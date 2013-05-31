@@ -199,7 +199,7 @@ bool load_mesh_file_obj( const char *filename, std::vector<double> &coords, std:
 	
 	// loop over the file line by line
 	while( !(getline(input,line)).fail() ){
-		if( line[0] == 'v' ){
+		if( line[0] == 'v'  && isspace(line[1]) ){
 			// load a vertex
 			std::istringstream iss( line );
 			iss >> token >> x >> y >> z;
