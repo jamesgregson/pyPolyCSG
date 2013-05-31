@@ -51,8 +51,8 @@ boost_libraries      = [ 'boost_python-mt' ]
 use_carve = True
 carve_defines        = [ ('CSG_USE_CARVE', '1') ]
 carve_compiler_flags = []
-carve_include_paths  = [ './third_party/carve-1.4.0/include', 'third_party/carve-1.4.0-build/include' ]
-carve_library_paths  = [ './third_party/carve-1.4.0-build/lib' ]
+carve_include_paths  = [ './third_party/carve/include', './third_party/carve_build/include' ]
+carve_library_paths  = [ './third_party/carve_build/lib' ]
 carve_libraries      = [ 'carve' ]
 
 # ==========================================================================

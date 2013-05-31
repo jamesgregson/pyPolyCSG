@@ -62,15 +62,15 @@ int main( int argc, char **argv ){
 	A.initialize_create_cylinder( 1.0, 2.0, true );
 	A.output_store_in_file( "cylinder.obj" );
 	
-	A.initialize_create_box( 2.0, 4.0, 6.0, true );
-	B.initialize_create_sphere( 1.0, true );
+	A.initialize_create_box( 6.0, 6.0, 6.0, true );
+	B.initialize_create_sphere( 3.01, true );
 	
 	B.output_store_in_file("tmp.obj");
 	
-	C = A-B.scale(1.3,2.6,3.9);
+	C = A-B;
     C.triangulate().output_store_in_file("dump.obj");
 	
-	C.triangulate().output_store_in_file("dump.vtp");
+	//C.triangulate().output_store_in_file("dump.vtp");
 	
 	
 	//polyhedron C = box( 1.0, 1.0, 1.0, true );

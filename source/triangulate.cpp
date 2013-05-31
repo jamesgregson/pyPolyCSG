@@ -12,7 +12,7 @@
 /** 
  @brief Defines a tolerance for what is considered convex, and what is considered inside a triangle.  This is unnecessary if exact predicates are used.
 */
-#define TRIANGULATE_EPSILON 1e-6
+#define TRIANGULATE_EPSILON 1e-12
 
 /**
  @brief Computes whether the angle formed by points a, b, and c is convex.  Convexity is determined by the dot product of the cross-product of (b-a)x(c-1) with the input normal vector.  If the cross-produce vector points along the normal vector, the angle is deemed convex.  This allows non-planar polygons to be tesselated given an estimated normal vector, rather than requiring all vertices lie on a plane.

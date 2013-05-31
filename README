@@ -17,17 +17,19 @@ pyPolyCSG code is licensed under the permissive MIT license, however commercial 
 INSTALLATION =========================================
 ======================================================
 
-PyPolyCSG depends on the Carve library to perform boolean operation on polyhedra.  A modified version 1.4.0 is included in the third_party/ subdirectory and must be built and installed.  The modifications allow the library to build under LLVM as packaged with the OS-X 10.8 developer tools.  GCC users can use the unmodified library, available from http://carve.googlecode.com/files/carve-1.4.0.tgz
+PyPolyCSG depends on the Carve library to perform boolean operation on polyhedra. To obtain and build the library run the following commands from the third_party subdirectory.  Note that building Carve requires the CMake build system to be installed.  The Boost library must also be installed.
 
-To do so, run the following commands from the third_party subdirectory.  Note that building Carve requires the CMake build system to be installed.  The Boost library must also be installed.
-
-mkdir carve-1.4.0-build
-cd carve-1.4.0-build
-cmake ../carve-1.4.0
+hg clone https://code.google.com/p/carve
+mkdir carve_build
+cd carve_build
+cmake ../carve -DCMAKE_BUILD_TYPE=Release
 make
 
-This will produce a set of files in the carve-1.4.0-build directory that are referenced by the PyPolyCSG build scripts along with the files in the carve-1.4.0 directory. Omit the -DCMAKE… portion if not building on OS-X.
+If successful, this will produce a set of files in the carve_build directory that are referenced by the PyPolyCSG build scripts along with the files in the carve directory. You can optionally install carve for use in other programs by running the command:
 
+make install
+
+from the carve_build directory as well. Note that you may need to copy config.h from carve_build/include/carve and carve/include/gnu_cxx.h to the install prefix (I did) before installing pyPolyCSG.
 
 ======================================================
 Python pyPolyCSG extension module:
