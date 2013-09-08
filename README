@@ -19,6 +19,8 @@ INSTALLATION =========================================
 
 PyPolyCSG depends on the Carve library to perform boolean operation on polyhedra. To obtain and build the library run the following commands from the third_party subdirectory.  Note that building Carve requires the CMake build system to be installed.  The Boost library must also be installed.
 
+mkdir third_party
+cd third_party
 hg clone https://code.google.com/p/carve
 mkdir carve_build
 cd carve_build
