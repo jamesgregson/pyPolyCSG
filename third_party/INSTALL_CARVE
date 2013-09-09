@@ -1,0 +1,6 @@
+
+# download the Carve CSG library from google code
+hg clone https://code.google.com/p/carve
+cd carve
+cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=Off
+make

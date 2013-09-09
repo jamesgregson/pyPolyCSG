@@ -53,28 +53,16 @@ void triangulate_test(){
 }
 
 int main( int argc, char **argv ){
-	//triangulate_test();
-	//return 0;
-	/*
-	extrusion_test();
-	*/
-	polyhedron A, B, C;
+
+	polyhedron A, B, C, D;
 	A.initialize_create_cylinder( 1.0, 2.0, true );
 	A.output_store_in_file( "cylinder.obj" );
 	
-	A.initialize_create_box( 6.0, 6.0, 6.0, true );
-	B.initialize_create_sphere( 3.01, true );
-	
-	B.output_store_in_file("tmp.obj");
-	
-	C = A-B;
-    C.triangulate().output_store_in_file("dump.obj");
-	
-	//C.triangulate().output_store_in_file("dump.vtp");
-	
-	
-	//polyhedron C = box( 1.0, 1.0, 1.0, true );
-	//C.triangulate().output_store_in_file("dump.obj");
-	 
+	B.initialize_create_box( 6.0, 6.0, 6.0, true );
+	C.initialize_create_sphere( 4.5, true );
+		
+	D = (B-C)+A;
+    D.triangulate().output_store_in_file("dump.obj");
+		 
 	return 0;
 }

@@ -14,44 +14,45 @@ LICENSE ==============================================
 pyPolyCSG code is licensed under the permissive MIT license, however commercial users should be aware that the Carve library upon which pyPolyCSG depends is licensed under the GPL v2.  Commercial users are advised to contact the Carve authors to negotiate custom license terms.
 
 ======================================================
+UPDATES ==============================================
+======================================================
+
+September 8, 2013 
+- Major revisions to the build system. Moved from distutils for building the library to CMake. Changed default Carve installation procedure.
+- Preliminary CGAL support, currently in alpha.  Build system will first attempt to use a system Carve installation, must be 'findable' via the CMake find_package function.  If no Carve installation is found, build system will then try to use system CGAL installation.  Failing that the build system will look in the third_party/ subdirectory for a Carve installation.  Disable use of CGAL entirely by passing -DCSG_NO_CGAL=True to CMake when building the library.
+
+======================================================
 INSTALLATION =========================================
 ======================================================
 
-PyPolyCSG depends on the Carve library to perform boolean operation on polyhedra. To obtain and build the library run the following commands from the third_party subdirectory.  Note that building Carve requires the CMake build system to be installed.  The Boost library must also be installed.
+PyPolyCSG depends on the Carve or CGAL libraries to perform boolean operation on polyhedra. CGAL tends to be more robust, while Carve is significantly faster.  Generally Carve is preferred.  To obtain and build the Carve run the following commands from the third_party subdirectory.  Note that building Carve requires the CMake build system to be installed.  The Boost library must also be installed.
 
-mkdir third_party
+To build carve, run the following commands from the pyPolyCSG directory.
+
 cd third_party
 hg clone https://code.google.com/p/carve
-mkdir carve_build
-cd carve_build
+cd carve
 cmake ../carve -DCMAKE_BUILD_TYPE=Release
 make
 
-If successful, this will produce a set of files in the carve_build directory that are referenced by the PyPolyCSG build scripts along with the files in the carve directory. You can optionally install carve for use in other programs by running the command:
+This should start building a release version of the Carve library. If successful, this will produce a set of files in the carve directory that are referenced by the PyPolyCSG build scripts along with the files in the carve directory. You can optionally install carve for use in other programs by running the command:
 
 make install
 
-from the carve_build directory as well. Note that you may need to copy config.h from carve_build/include/carve and carve/include/gnu_cxx.h to the install prefix (I did) before installing pyPolyCSG.
+from the carve directory as well. 
 
 ======================================================
 Python pyPolyCSG extension module:
 
-Edit the setup.py script in the root installation directory to correctly set paths for your system. Then run the following from the root installation directory:
+Run the following commands to create a build directory and build the library:
+
+mkdir build
+cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release [-DCSG_NO_CGAL]
+make
+
+Include the term in square brackets to disable use of CGAL, otherwise leave it out.  This should place a pyPolyCSG library (e.g. libpyPolyCSG.dylib, libpyPolyCSG.so or libpyPolyCSG.lib) file in the top level directory.  You can then create the python extension module by running the following command. 
 
 python setup.py install
 
 to install the extension module.  This may need to be run as root. Examples demonstrating the library can then be run from the scripts/ subdirectory.
-
-======================================================
-C++ Test Executable:
-
-Edit the CMakeLists.txt file to correctly set paths for your system. Then run the following from the root installation directory
-
-mkdir build
-cd build
-cmake .. 
-make
-
-This should build a 'boolean_test' executable that subtracts an ellipsoid from a box, saving the result as 'dump.obj'.
-
-

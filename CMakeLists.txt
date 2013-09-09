@@ -1,67 +1,93 @@
 cmake_minimum_required( VERSION 2.6 )
 
 # create a basic project
-project( boolean )
-
-set( CARVE_INCLUDE_DIRS third_party/carve/include third_party/carve_build/include/carve )
-set( CARVE_LIBRARY_DIRS third_party/carve_build/lib/Release )
-set( CARVE_LIBRARIES carve )
-add_definitions( -DCSG_USE_CARVE )
-link_directories( ${CARVE_LIBRARY_DIRS} )
-
-#set( CGAL_INCLUDE_DIRS /usr/local/include )
-#set( CGAL_LIBRARY_DIRS /usr/local/lib/CGAL )
-#set( CGAL_LIBRARIES CGAL_Core CGAL gmp mpfr )
-add_definitions( -DCSG_USE_CARVE )
-add_definitions( -frounding-math )
-link_directories( ${CGAL_LIBRARY_DIRS} )
-
-find_package( Boost REQUIRED )
-IF( Boost_FOUND )
-  SET( Boost_USE_STATIC_LIBS OFF )
-  SET( Boost_USE_MULTITHREADED ON )
-  SET( Boost_USE_STATIC_RUNTIME OFF )
-  FIND_PACKAGE( Boost COMPONENTS python thread )
-ENDIF()
-
-SET( PYTHON_INCLUDE_DIRS /usr/include/python2.7 )
-SET( PYTHON_LIBRARIES    /usr/local/lib/python )  
-
-set( INCLUDE_DIRS 
-	include ${Boost_INCLUDE_DIRS} 
-	${CARVE_INCLUDE_DIRS} 
-	${PYTHON_INCLUDE_DIRS}
-)
-set( LIBS 
-	${CARVE_LIBRARIES} 
-	${Boost_LIBRARIES} 
-	${PYTHON_LIBRARIES}
-)
+project( pyPolyCSG )
 
 set( BOOLEAN_SOURCES 
-	source/mesh_functions.cpp 
-	source/mesh_io.cpp 
-	source/polyhedron_binary_op.cpp 
-	source/polyhedron_unary_op.cpp 
-	source/polyhedron.cpp 
-	source/triangulate.cpp 
-        source/python_wrapper.cpp
+  source/mesh_functions.cpp
+  source/mesh_io.cpp
+  source/polyhedron_binary_op.cpp
+  source/polyhedron_unary_op.cpp
+  source/polyhedron.cpp
+  source/triangulate.cpp
 )
 
 set( BOOLEAN_HEADERS
-	include/mesh_functions.h
-	include/mesh_io.h
-	include/polyhedron_binary_op.h
-	include/polyhedron_unary_op.h
-	include/polyhedron.h
-	include/triangulate.h 
+  include/mesh_functions.h
+  include/mesh_io.h
+  include/polyhedron_binary_op.h
+  include/polyhedron_unary_op.h
+  include/polyhedron.h
+  include/triangulate.h 
 )
 
-include_directories( ${INCLUDE_DIRS} )
+find_package( CARVE )
+IF( CARVE_FOUND )
+  message( STATUS "Found system Carve installation!" )
+  set( INCLUDE_DIRS ${INCLUDE_DIRS} ${CARVE_INCLUDE_DIRS} )
+  set( LIBS ${LIBS} ${CARVE_LIBRARIES} )
+  add_definitions( -DCSG_USE_CARVE )
+ENDIF( CARVE_FOUND )
 
-add_executable( boolean_test 
-	source/boolean_test.cpp 
-	${BOOLEAN_SOURCES} 
-	${BOOLEAN_HEADERS} 
+if( NOT CSG_NO_CGAL )
+  find_package( CGAL )
+  IF( CGAL_FOUND )
+    message( STATUS "Found system CGAL installation!" )
+    set( INCLUDE_DIRS ${INCLUDE_DIRS} ${CGAL_INCLUDE_DIRS} )
+    set( LIBS ${LIBS} ${CGAL_LIBRARIES} )
+    include( ${CGAL_USE_FILE} )
+    add_definitions( -DCSG_USE_CGAL )
+  ENDIF( CGAL_FOUND )
+ENDIF( NOT CSG_NO_CGAL )
+
+IF( NOT CARVE_FOUND AND NOT CGAL_FOUND )
+  message( STATUS "No system Carve or CGAL installation found, falling back to Carve in third_party/" )
+  SET( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/third_party )
+  find_package( CARVE )
+  IF( CARVE_FOUND )
+    message( STATUS "Found third_party/ Carve installation!" )
+    set( INCLUDE_DIRS ${INCLUDE_DIRS} ${CARVE_INCLUDE_DIRS} )
+    set( LIBS ${LIBS} ${CARVE_LIBRARIES} )
+    add_definitions( -DCSG_USE_CARVE )
+  ELSE(CARVE_FOUND)
+    message( ERROR "One of CGAL or Carve must be installed to build pyPolyCSG!" )
+  ENDIF(CARVE_FOUND)
+ENDIF( NOT CARVE_FOUND AND NOT CGAL_FOUND )
+
+find_package( PythonLibs REQUIRED )
+IF( PYTHONLIBS_FOUND )
+  set( INCLUDE_DIRS ${INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS} )
+  set( LIBS ${LIBS} ${PYTHON_LIBRARIES} )
+ENDIF( PYTHONLIBS_FOUND )
+
+find_package( Boost COMPONENTS python thread REQUIRED )
+IF( Boost_FOUND )
+  SET( INCLUDE_DIRS ${INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} )
+  SET( LIBS ${LIBS} ${Boost_LIBRARIES} )
+ENDIF( Boost_FOUND )
+
+IF( PYTHONLIBS_FOUND AND Boost_FOUND )
+  set( BOOLEAN_SOURCES ${BOOLEAN_SOURCES} source/python_wrapper.cpp )
+ENDIF( PYTHONLIBS_FOUND AND Boost_FOUND )
+
+include_directories( include ${INCLUDE_DIRS} )
+add_library( pyPolyCSG SHARED ${BOOLEAN_SOURCES} ${BOOLEAN_HEADERS} )
+target_link_libraries( pyPolyCSG ${LIBS} )
+IF( APPLE )
+  # OS-X specific library naming
+  #set_target_properties( pyPolyCSG PROPERTIES PREFIX "" )
+  #set_target_properties( pyPolyCSG PROPERTIES SUFFIX .so )
+ELSEIF( UNIX )
+  # Unix specific library naming
+ELSEIF( WIN32 )
+  # Windows specific library naming
+ENDIF( APPLE )
+set_target_properties( pyPolyCSG PROPERTIES
+  LIBRARY_OUTPUT_DIRECTORY ..
+  LIBRARY_OUTPUT_DIRECTORY_DEBUG ..
+  LIBRARY_OUTPUT_DIRECTORY_RELEASE ..
 )
-target_link_libraries( boolean_test ${LIBS} )
+
+
+#add_executable( pyPolyCSG_test source/boolean_test.cpp )
+#target_link_libraries( pyPolyCSG_test pyPolyCSG )

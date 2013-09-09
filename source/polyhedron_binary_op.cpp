@@ -5,7 +5,7 @@
 #include"polyhedron.h"
 #include"polyhedron_binary_op.h"
 
-#if defined(CSG_USE_CGAL)
+#if defined(CSG_USE_CGAL) && !defined(CSG_USE_CARVE)
 #include <CGAL/Polyhedron_items_with_id_3.h> 
 #include <CGAL/Exact_predicates_exact_constructions_kernel.h>
 #include<CGAL/Polyhedron_incremental_builder_3.h>
@@ -16,14 +16,14 @@
 #include <CGAL/function_objects.h>
 #elif defined(CSG_USE_CARVE)
 #if defined(HAVE_CONFIG_H)
-# include <carve/config.h>
+#include <carve/config.h>
 #endif
 #include <carve/interpolator.hpp>
 #include <carve/csg_triangulator.hpp>
 #include <carve/csg.hpp>
 #endif
 
-#if defined(CSG_USE_CGAL)
+#if defined(CSG_USE_CGAL) && !defined(CSG_USE_CARVE)
 typedef CGAL::Exact_predicates_exact_constructions_kernel     Kernel;
 typedef CGAL::Polyhedron_3<Kernel>         Polyhedron;
 typedef Polyhedron::HalfedgeDS             HalfedgeDS;
@@ -76,125 +76,104 @@ public:
 };
 
 Nef_polyhedron polyhedron_to_cgal( const polyhedron &p ){
+    polyhedron tmp = p.triangulate();
     Polyhedron P;
-    polyhedron_builder<HalfedgeDS> builder( p );
+    polyhedron_builder<HalfedgeDS> builder( tmp );
     P.delegate( builder );
-    return Nef_polyhedron( P );
+    if( P.is_closed() )
+        return Nef_polyhedron( P );
+    else
+        std::cout << "input polyhedron is not closed!" << std::endl;
+    
+    return Nef_polyhedron();
 }
 
 polyhedron cgal_to_polyhedron( const Nef_polyhedron &NP ){
     Polyhedron P;
-    NP.convert_to_polyhedron(P);
-    std::vector<double> coords;
-    std::vector<int> tris;
-    int next_id = 0;
-    std::map< Polyhedron::Vertex*, int > vid;
-    for( Polyhedron::Vertex_iterator iter=P.vertices_begin(); iter!=P.vertices_end(); iter++ ){
-        coords.push_back( CGAL::to_double( (*iter).point().x() ) );
-        coords.push_back( CGAL::to_double( (*iter).point().y() ) );
-        coords.push_back( CGAL::to_double( (*iter).point().z() ) );
-        vid[ &(*iter) ] = next_id++;
-    }
-    
-    for( Polyhedron::Facet_iterator iter=P.facets_begin(); iter!=P.facets_end(); iter++ ){
-        Polyhedron::Halfedge_around_facet_circulator j = iter->facet_begin();
-        tris.push_back( CGAL::circulator_size(j) );
-        do {
-            tris.push_back( std::distance(P.vertices_begin(), j->vertex()) );
-        } while ( ++j != iter->facet_begin());
-    }
-    
     polyhedron ret;
-    ret.initialize_load_from_mesh( coords, tris );
+    
+    if( NP.is_simple() ){
+        NP.convert_to_polyhedron(P);
+        std::vector<double> coords;
+        std::vector<int> tris;
+        int next_id = 0;
+        std::map< Polyhedron::Vertex*, int > vid;
+        for( Polyhedron::Vertex_iterator iter=P.vertices_begin(); iter!=P.vertices_end(); iter++ ){
+            coords.push_back( CGAL::to_double( (*iter).point().x() ) );
+            coords.push_back( CGAL::to_double( (*iter).point().y() ) );
+            coords.push_back( CGAL::to_double( (*iter).point().z() ) );
+            vid[ &(*iter) ] = next_id++;
+        }
+        
+        for( Polyhedron::Facet_iterator iter=P.facets_begin(); iter!=P.facets_end(); iter++ ){
+            Polyhedron::Halfedge_around_facet_circulator j = iter->facet_begin();
+            tris.push_back( CGAL::circulator_size(j) );
+            do {
+                tris.push_back( std::distance(P.vertices_begin(), j->vertex()) );
+            } while ( ++j != iter->facet_begin());
+        }
+        
+        ret.initialize_load_from_mesh( coords, tris );
+    } else {
+        std::cout << "resulting polyhedron is not simple!" << std::endl;
+    }
     return ret;
 }
 
 polyhedron polyhedron_union::operator()( const polyhedron &A, const polyhedron &B ){
-    
     Nef_polyhedron a, b, c;
-    a = polyhedron_to_cgal( A );
-    b = polyhedron_to_cgal( B );
-    c = (a + b).interior().closure();
-    return cgal_to_polyhedron( c );
-    
-    
-    /*
-    Polyhedron pA, pB, pC;
-    polyhedron_builder<HalfedgeDS> builderA( A );
-    polyhedron_builder<HalfedgeDS> builderB( B );
-
-    std::vector<double> coords;
-    std::vector<int> tris;
-
-    pA.delegate( builderA );
-    pB.delegate( builderB );
-
-
-    Nef_polyhedron nA(pA), nB(pB);
-    Nef_polyhedron nC( (nA+nB).regularization() );
-
-    nC.convert_to_polyhedron(pC);
-    
-    std::cout << pC << std::endl;
-    
-    int next_id = 0;
-    std::map< Polyhedron::Vertex*, int > vid;
-    for( Polyhedron::Vertex_iterator iter=pC.vertices_begin(); iter!=pC.vertices_end(); iter++ ){
-        coords.push_back( CGAL::to_double( (*iter).point().x() ) );
-        coords.push_back( CGAL::to_double( (*iter).point().y() ) );
-        coords.push_back( CGAL::to_double( (*iter).point().z() ) );
-        vid[ &(*iter) ] = next_id++;
+    try {
+        a = polyhedron_to_cgal( A );
+        b = polyhedron_to_cgal( B );
+        c = (a + b).interior().closure();
+        return cgal_to_polyhedron( c );
+    } catch( std::exception &e ){
+        return A;
     }
-    
-    for( Polyhedron::Facet_iterator iter=pC.facets_begin(); iter!=pC.facets_end(); iter++ ){
-        Polyhedron::Halfedge_around_facet_circulator j = iter->facet_begin();
-        tris.push_back( CGAL::circulator_size(j) );
-        std::cout << CGAL::circulator_size(j) << " ";
-        do {
-            tris.push_back( std::distance(pC.vertices_begin(), j->vertex()) );
-        } while ( ++j != iter->facet_begin());
-        std::cout << std::endl;
-    }
-
-    polyhedron ret;
-    ret.initialize_load_from_mesh( coords, tris );
-    return ret;
-    */
 }
 
 polyhedron polyhedron_difference::operator()( const polyhedron &A, const polyhedron &B ){
     Nef_polyhedron a, b, c;
-    a = polyhedron_to_cgal( A );
-    b = polyhedron_to_cgal( B );
-    c = (a - b).regularization();
-    return cgal_to_polyhedron( c );
+    try {
+        a = polyhedron_to_cgal( A );
+        b = polyhedron_to_cgal( B );
+        c = (a - b).interior().closure();
+        return cgal_to_polyhedron( c );
+    } catch( std::exception &e ){
+        return A;
+    }
 }
 
 polyhedron polyhedron_symmetric_difference::operator()( const polyhedron &A, const polyhedron &B ){
     Nef_polyhedron a, b, c;
-    a = polyhedron_to_cgal( A );
-    b = polyhedron_to_cgal( B );
-    c = (a ^ b).interior().closure();
-    return cgal_to_polyhedron( c );
+    try {
+        a = polyhedron_to_cgal( A );
+        b = polyhedron_to_cgal( B );
+        c = (a ^ b).interior().closure();
+        return cgal_to_polyhedron( c );
+    } catch( std::exception &e ){
+        return A;
+    }
 }
 
 polyhedron polyhedron_intersection::operator()( const polyhedron &A, const polyhedron &B ){
     Nef_polyhedron a, b, c;
-    a = polyhedron_to_cgal( A );
-    b = polyhedron_to_cgal( B );
-    c = (a * b).interior().closure();
-    return cgal_to_polyhedron( c );
+    try {
+        a = polyhedron_to_cgal( A );
+        b = polyhedron_to_cgal( B );
+        c = (a * b).interior().closure();
+        return cgal_to_polyhedron( c );
+    } catch( std::exception &e ){
+        return A;
+    }
 }
 
 
-#endif
+#elif defined(CSG_USE_CARVE)
 
-#if defined(CSG_USE_CARVE)
 carve::mesh::MeshSet<3> *polyhedron_to_carve( const polyhedron &p ){
 	std::vector<double> coords;
 	std::vector<int> faces;
-    
-    //polyhedron tmp = p.triangulate();
     
 	p.output_store_in_mesh( coords, faces );
 	
@@ -216,35 +195,6 @@ carve::mesh::MeshSet<3> *polyhedron_to_carve( const polyhedron &p ){
 
 	return new carve::mesh::MeshSet<3>( f );
 }
-
-/*
- // old implementation, only worked for tris and quads
-carve::poly::Polyhedron *polyhedron_to_carve( const polyhedron &p ){
-	std::vector<double> coords;
-	std::vector<int> faces;
-	p.output_store_in_mesh( coords, faces );
-	
-	carve::input::PolyhedronData data;
-	for( int i=0; i<(int)coords.size(); i+=3 ){
-		data.addVertex( carve::geom::VECTOR( coords[i], coords[i+1], coords[i+2] ) );
-	}
-	int nverts, tmpi = 0;
-	while( tmpi < (int)faces.size() ){
-		nverts = faces[tmpi++];
-		if( nverts == 3 ){
-			data.addFace( faces[tmpi], faces[tmpi+1], faces[tmpi+2] );
-			tmpi += 3;
-		} else if( nverts == 4 ){
-			data.addFace( faces[tmpi], faces[tmpi+1], faces[tmpi+2], faces[tmpi+3] );
-			tmpi += 4;			
-		} else {
-			std::cout << "error, face is neither quad nor triangle" << std::endl;
-			tmpi += nverts;
-		}
-	}
-	return data.create();
-}
-*/
 
 polyhedron carve_to_polyhedron( carve::mesh::MeshSet<3> *p ){
 	std::map< const carve::mesh::MeshSet<3>::vertex_t*, int > vid;

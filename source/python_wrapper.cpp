@@ -2,7 +2,7 @@
 // - added extrusion, cylinder and surface of revolution to interface as suggested
 //   by Ryan Rix, March 2013
 #include<boost/python.hpp>
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+#include<boost/python/suite/indexing/vector_indexing_suite.hpp>
 using namespace boost::python;
 
 #include"polyhedron.h"
@@ -59,7 +59,7 @@ BOOST_PYTHON_MODULE(pyPolyCSG){
 	def( "cylinder",	     cylinder,  cylinder_overloads() );
 	def( "cone",		     cone,      cone_overloads() );
 	def( "torus",		     torus,     torus_overloads() );
-    //def( "extrusion",        py_extrusion, extrusion_overloads );
+    def( "extrusion",        py_extrusion /*, extrusion_overloads*/ );
 	def( "surface_of_revolution", py_surface_of_revolution, sor_overloads() );
     
 	class_<polyhedron>("polyhedron")
@@ -74,8 +74,8 @@ BOOST_PYTHON_MODULE(pyPolyCSG){
 	.def( "translate",                 &polyhedron::translate )
 	.def( "rotate",                    &polyhedron::rotate )
 	.def( "scale",                     &polyhedron::scale )
-	.def( "mult_matrix_3",               &polyhedron::py_mult_matrix_3 )
-	.def( "mult_matrix_4",               &polyhedron::py_mult_matrix_4 )
+	.def( "mult_matrix_3",             &polyhedron::py_mult_matrix_3 )
+	.def( "mult_matrix_4",             &polyhedron::py_mult_matrix_4 )
 	.def( "save_mesh",                 &polyhedron::output_store_in_file )
     
     .def( "num_vertices",              &polyhedron::num_vertices )

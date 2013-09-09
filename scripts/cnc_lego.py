@@ -35,9 +35,11 @@ def bearing_mount_608():
     screw_hole = cylinder( mounting_hole_radius, inch_to_mm( 2.0 ), True, 20 )
     
     bearing_hole = cylinder( hole_compensation(22.0)/2.0, inch_to_mm( 0.25 ), True, 40 ).rotate( 90.0, 0.0, 0.0 )
-    shaft_hole = cylinder( hole_compensation(14.0)/2.0, inch_to_mm( 1.0 ), True, 20 ).rotate( 90.0, 0.0, 0.0 )
-
-    obj = obj - (screw_hole.translate( inch_to_mm( 0.5 ),0.0,0.0) + screw_hole.translate(-inch_to_mm( 0.5 ),0.0,0.0) + bearing_hole.translate( 0.0, inch_to_mm(0.25), inch_to_mm(3.0/8.0) ) + bearing_hole.translate( 0.0, inch_to_mm(0.25), inch_to_mm(-3.0/8.0) ) + shaft_hole.translate( 0.0, inch_to_mm(0.25), 0.0 ) )
+    shaft_hole = cylinder( hole_compensation(14.0)/2.0, inch_to_mm( 1.0 ), True, 20 ).rotate( 90.0, 0.0, 0.0 )    
+    obj = obj - screw_hole.translate( inch_to_mm( 0.5 ),0.0,0.0)
+    obj = obj - screw_hole.translate(-inch_to_mm( 0.5 ),0.0,0.0)
+    obj = obj - (bearing_hole.translate( 0.0, inch_to_mm(0.25), inch_to_mm(3.0/8.0)+1e-4) + bearing_hole.translate( 0.0, inch_to_mm(0.25), inch_to_mm(-3.0/8.0)-1e-4 ))
+    obj = obj - shaft_hole.translate( 0.0, inch_to_mm(0.25), 0.0 )
     return obj
 
 def spacer_quarter_inch():
@@ -129,14 +131,14 @@ def chain_end():
     hole2 = cylinder( mounting_hole_radius/2, inch_to_mm( 2.0 ), True ).rotate( 90, 0.0, 0.0 )
     return plate - (hole1.translate( 0.0, inch_to_mm(0.5), 0.0 ) + hole2.translate( 0.0, inch_to_mm(-0.5), 0.0 ) )
 
-shaft_support_8mm().save_mesh( "shaft_support_8mm.obj" )
-bearing_mount_lm8uu().save_mesh( "bearing_mount_lm8uu.obj" )
+#shaft_support_8mm().save_mesh( "shaft_support_8mm.obj" )
+#bearing_mount_lm8uu().save_mesh( "bearing_mount_lm8uu.obj" )
 bearing_mount_608().save_mesh( "bearing_mount_608.obj" )
-spacer_quarter_inch().save_mesh( "spacer_quarter_inch.obj" )
-belt_clamp_base().save_mesh( "belt_clamp_base.obj" )
-axis_end().save_mesh("axis_end.obj" )
-carriage().save_mesh("carriage.obj" )
-bushing_mount().save_mesh("bushing_mount.obj" )
-leadnut_mount().save_mesh("leadnut_mount.obj" )
-bearing_plate_608().save_mesh("bearing_plate_608.obj")
-chain_end().save_mesh("chain_end.obj")
+#spacer_quarter_inch().save_mesh( "spacer_quarter_inch.obj" )
+#belt_clamp_base().save_mesh( "belt_clamp_base.obj" )
+#axis_end().save_mesh("axis_end.obj" )
+#carriage().save_mesh("carriage.obj" )
+#bushing_mount().save_mesh("bushing_mount.obj" )
+#leadnut_mount().save_mesh("leadnut_mount.obj" )
+#bearing_plate_608().save_mesh("bearing_plate_608.obj")
+#chain_end().save_mesh("chain_end.obj")

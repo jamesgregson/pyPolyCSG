@@ -103,7 +103,7 @@ bool load_mesh_file( const char *filename, std::vector<double> &coords, std::vec
 bool save_mesh_file( const std::vector<double> &coords, const std::vector<int> &faces, const char *filename ){
 	// get the file extension
 	const char *ext = mesh_io_get_file_extension( filename );
-	
+	    
 	// check the possible extensions
 	if( strcmp(ext, "off") == 0 ){
 		// call *.off saver
