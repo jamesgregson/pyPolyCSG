@@ -1,0 +1,6 @@
+set( CARVE_FOUND TRUE )
+set( CARVE_INCLUDE_DIRS 
+ ${CMAKE_CURRENT_LIST_DIR}/carve/include 
+ ${CMAKE_CURRENT_LIST_DIR}/carve/lib
+)
+set( CARVE_LIBRARIES -L${CMAKE_CURRENT_LIST_DIR}/carve/lib -lcarve )

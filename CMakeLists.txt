@@ -21,6 +21,7 @@ set( BOOLEAN_HEADERS
   include/triangulate.h 
 )
 
+IF( NOT CSG_NO_CARVE )
 find_package( CARVE )
 IF( CARVE_FOUND )
   message( STATUS "Found system Carve installation!" )
@@ -28,6 +29,7 @@ IF( CARVE_FOUND )
   set( LIBS ${LIBS} ${CARVE_LIBRARIES} )
   add_definitions( -DCSG_USE_CARVE )
 ENDIF( CARVE_FOUND )
+ENDIF( NOT CSG_NO_CARVE )
 
 if( NOT CSG_NO_CGAL )
   find_package( CGAL )
@@ -42,7 +44,7 @@ ENDIF( NOT CSG_NO_CGAL )
 
 IF( NOT CARVE_FOUND AND NOT CGAL_FOUND )
   message( STATUS "No system Carve or CGAL installation found, falling back to Carve in third_party/" )
-  SET( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/third_party )
+  SET( CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_SOURCE_DIR}/third_party )
   find_package( CARVE )
   IF( CARVE_FOUND )
     message( STATUS "Found third_party/ Carve installation!" )
