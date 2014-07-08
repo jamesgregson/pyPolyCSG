@@ -121,9 +121,7 @@ class polyhedron_multmatrix4 : public polyhedron_unary_op
 {
     private:
         /** @brief matrix to apply */
-        double m_matrix[3][3];
-        /** @brief translation to apply */
-        double m_translation[3];
+        double m_matrix[4][4];
     public:
         /**
          @brief constructor, takes a list of matrix elements as arguments

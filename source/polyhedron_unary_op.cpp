@@ -119,30 +119,29 @@ polyhedron_multmatrix4::polyhedron_multmatrix4(
 		const double yx, const double yy, const double yz, const double ya,
 		const double zx, const double zy, const double zz, const double za,
 		const double ax, const double ay, const double az, const double aa ) {
-	m_matrix[0][0] = xx; m_matrix[0][1] = xy; m_matrix[0][2] = xz;
-	m_matrix[1][0] = yx; m_matrix[1][1] = yy; m_matrix[1][2] = yz;
-	m_matrix[2][0] = zx; m_matrix[2][1] = zy; m_matrix[2][2] = zz;
-
-	m_translation[0] = xa;
-	m_translation[1] = ya;
-	m_translation[2] = za;
+	//the last row is effectively ignored
+	m_matrix[0][0] = xx; m_matrix[0][1] = xy; m_matrix[0][2] = xz; m_matrix[0][3] = xa;
+	m_matrix[1][0] = yx; m_matrix[1][1] = yy; m_matrix[1][2] = yz; m_matrix[1][3] = ya;
+	m_matrix[2][0] = zx; m_matrix[2][1] = zy; m_matrix[2][2] = zz; m_matrix[2][3] = za;
+	m_matrix[3][0] = ax; m_matrix[3][1] = ay; m_matrix[3][2] = az; m_matrix[3][3] = aa;
 }
 
 polyhedron polyhedron_multmatrix4::operator()( const polyhedron &in ) {
 	std::vector<double> coords, new_coords;
 	std::vector<int>	faces;
 	in.output_store_in_mesh( coords, faces );
-  new_coords.resize(coords.size());
+    new_coords.resize(coords.size());
 	for( int offset=0; offset<(int)coords.size(); offset+=3 ){
-	for ( int j=0; j<3; j++ ) {
-		for ( int k=0; k<3; k++ ) {
-			new_coords[offset+j] += m_matrix[j][k] * coords[offset+j];
-		}
+        for ( int j=0; j<3; j++ ) {
+            for ( int k=0; k<4; k++ ) {
+                if (k==3) {
+                    new_coords[offset+j] += m_matrix[j][k]; } // *1 is omitted from the end of this line
+                else {
+                    new_coords[offset+j] += m_matrix[j][k] * coords[offset+k]; }
+            }
+        }
 	}
-	}
-  polyhedron_translate* translate = new polyhedron_translate(m_translation[0], m_translation[1], m_translation[2]);
 	polyhedron ret;
 	ret.initialize_load_from_mesh( new_coords, faces );
-  ret = (*translate)(ret);
 	return ret;
 }
